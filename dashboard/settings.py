@@ -12,6 +12,41 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 
 from pathlib import Path
 
+# settings.py
+
+"""
+fetch('http://localhost:8000/auth/login/', {
+  method: 'POST',
+  headers: {
+    'Authorization': `Bearer ${googleAccessToken}`
+  }
+})
+.then(response => response.json())
+.then(data => {
+  if (data.success) {
+    // Handle successful login, manage session on client side
+  }
+});
+"""
+
+AUTHENTICATION_BACKENDS = (
+    'social_core.backends.google.GoogleOAuth2',  # Google OAuth
+    'django.contrib.auth.backends.ModelBackend',  # Fallback to Django auth
+)
+
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = 'http://1097424306619-gds2e3revee9smggq7q83hk6noh2aaam.apps.googleusercontent.com'
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = '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'
+
+LOGIN_URL = 'login'
+LOGOUT_URL = 'logout'
+LOGIN_REDIRECT_URL = '/'  # Redirect URL after login
+LOGOUT_REDIRECT_URL = '/login'  # Redirect URL after logout
+
+# Required for Django sessions
+SESSION_COOKIE_AGE = 1209600  # 2 weeks
+SESSION_SAVE_EVERY_REQUEST = True
+
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
