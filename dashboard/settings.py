@@ -48,6 +48,8 @@ SESSION_SAVE_EVERY_REQUEST = True
 
 CORS_ALLOW_ALL_ORIGINS = True
 
+ALLOWED_HOSTS = ['your-heroku-app.herokuapp.com']
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
