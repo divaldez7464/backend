@@ -1,22 +1,28 @@
 FROM maven:3.8.5-openjdk-17 AS build
 
-# Set the working directory inside the container
+# Set working directory
 WORKDIR /app
 
-# Copy all files from the local directory to the container's /app directory
+# First, copy only the pom.xml file
+COPY pom.xml .
+
+# Run mvn dependency resolve (this will cache the downloaded dependencies)
+RUN mvn dependency:go-offline
+
+# Now copy the rest of the application source code
 COPY . .
 
-# Ensure that the pom.xml is present and then run Maven package
+# Build the application
 RUN mvn clean package -DskipTests
 
-# Use a lightweight base image for the runtime
+# Second stage, use a lightweight JDK image for the runtime
 FROM openjdk:17-jdk-slim
 
-# Copy the built jar file to the runtime image
+# Copy the built jar from the Maven build stage
 COPY --from=build /app/target/*.jar /app.jar
 
-# Expose the port your Spring Boot app runs on
+# Expose the port that the Spring Boot app will run on
 EXPOSE 8080
 
-# Command to run the Spring Boot app
+# Command to run the application
 ENTRYPOINT ["java", "-jar", "/app.jar"]
