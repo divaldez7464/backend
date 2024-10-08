@@ -14,11 +14,19 @@ public class BackendApplication {
 		SpringApplication.run(BackendApplication.class, args);
 	}
 
-	@CrossOrigin
-	@GetMapping("/hello")
-	public String hello(@RequestParam (value="name", defaultValue="springboot")String name) {
-		return String.format("Hello %s", name);
+	// @CrossOrigin
+	// @GetMapping("/hello")
+	// public String hello(@RequestParam (value="name", defaultValue="springboot")String name) {
+	// 	return String.format("Hello %s", name);
+	// }
+
+	
+	@RestController
+	class Controller{
+		@GetMapping("/")
+		public String handle(){
+			return "Hey, Have a Nice Day" ;
+		}
 	}
-
-
+	
 }
