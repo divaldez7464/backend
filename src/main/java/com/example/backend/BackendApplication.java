@@ -23,10 +23,9 @@ public class BackendApplication {
 	
 	@RestController
 	class Controller{
-		@GetMapping("/")
+		@GetMapping("/hello")
 		public String handle(){
 			return "Hey, Have a Nice Day" ;
 		}
 	}
-	
 }
