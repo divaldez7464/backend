@@ -1,14 +1,14 @@
-# Use an official Java runtime as a parent image
 FROM openjdk:17-jdk-slim
 
 # Set the working directory in the container
-WORKDIR /app
+WORKDIR /app/backend
 
-# Copy the Gradle wrapper files and build.gradle
+# Copy the Gradle wrapper files and build configuration
 COPY gradlew ./
 COPY gradlew.bat ./
 COPY build.gradle ./
 COPY settings.gradle ./
+COPY gradle /app/backend/gradle 
 
 # Copy the source code into the container
 COPY src ./src
