@@ -1,54 +1,60 @@
 package com.example.backend.controllers;
 
-import org.springframework.web.bind.annotation.RestController;
 import com.example.backend.entity.User;
 import com.example.backend.repository.UserRepository;
+
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-
-
+import jakarta.servlet.http.HttpSession;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/users")
 public class UserController {
 
     private UserRepository userRepository;
+    private PasswordEncoder passwordEncoder;
 
-    private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-
+    // Create new user
     @PostMapping("/newuser")
-    public ResponseEntity<?> createUser(@RequestParam String username, @RequestParam String password) {
-        User user = new User();
-        user.setUsername(username);
-        user.setPassword(passwordEncoder.encode(password)); // Hashing the password
-        userRepository.save(user);
-        return ResponseEntity.ok("User created successfully.");
+    public ResponseEntity<User> createUser(@RequestParam String username, @RequestParam String password) {
+        if (userRepository.findByUsername(username) != null) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).build();
+        }
+        User newUser = new User();
+        newUser.setUsername(username);
+        newUser.setPassword(passwordEncoder.encode(password));  // Hash password
+        userRepository.save(newUser);
+        return ResponseEntity.status(HttpStatus.CREATED).body(newUser);
     }
 
+    // Log in user
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestParam String username, @RequestParam String password) {
+    public ResponseEntity<String> login(@RequestParam String username, @RequestParam String password, HttpSession session) {
         User user = userRepository.findByUsername(username);
-        if (user != null && passwordEncoder.matches(password, user.getPassword())) {
-            // Implement session handling here
-            return ResponseEntity.ok("Logged in successfully.");
+        if (user == null || !passwordEncoder.matches(password, user.getPassword())) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-        return ResponseEntity.status(401).body("Invalid username or password.");
+        session.setAttribute("user", user);
+        return ResponseEntity.ok("Logged in");
     }
 
+    // Log out user
     @PostMapping("/logout")
-    public ResponseEntity<?> logout(@RequestParam String username) {
-        // Implement session invalidation
-        return ResponseEntity.ok("Logged out successfully.");
+    public ResponseEntity<String> logout(HttpSession session) {
+        session.invalidate();
+        return ResponseEntity.ok("Logged out");
     }
 
-    @DeleteMapping("/logout")
-    public ResponseEntity<?> deleteAccount(@RequestParam String username, @RequestParam String password) {
+    // Delete account with password confirmation
+    @DeleteMapping("/delete")
+    public ResponseEntity<String> deleteAccount(@RequestParam String username, @RequestParam String password) {
         User user = userRepository.findByUsername(username);
-        if (user != null && passwordEncoder.matches(password, user.getPassword())) {
-            userRepository.delete(user);
-            return ResponseEntity.ok("Account deleted successfully.");
+        if (user == null || !passwordEncoder.matches(password, user.getPassword())) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-        return ResponseEntity.status(401).body("Invalid password.");
+        userRepository.delete(user);
+        return ResponseEntity.ok("Account deleted");
     }
 }
