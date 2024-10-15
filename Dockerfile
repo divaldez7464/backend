@@ -1,28 +1,26 @@
-FROM maven:3.8.5-openjdk-17 AS build
-
-# Set working directory
-WORKDIR /app
-
-# First, copy only the pom.xml file
-COPY pom.xml .
-
-# Run mvn dependency resolve (this will cache the downloaded dependencies)
-RUN mvn dependency:go-offline
-
-# Now copy the rest of the application source code
-COPY . .
-
-# Build the application
-RUN mvn clean package -DskipTests
-
-# Second stage, use a lightweight JDK image for the runtime
 FROM openjdk:17-jdk-slim
 
-# Copy the built jar from the Maven build stage
-COPY --from=build /app/target/*.jar /app.jar
+# Set the working directory in the container
+WORKDIR /app/backend
 
-# Expose the port that the Spring Boot app will run on
+# Copy the Gradle wrapper files and build configuration
+COPY gradlew ./
+COPY gradlew.bat ./
+COPY build.gradle ./
+COPY settings.gradle ./
+COPY gradle /app/backend/gradle 
+
+# Copy the source code into the container
+COPY src ./src
+
+# Ensure that the Gradle wrapper has executable permissions
+RUN chmod +x gradlew
+
+# Build the project (excluding tests)
+RUN ./gradlew build -x test
+
+# Expose the application port (adjust as needed, typically 8080 for Spring Boot)
 EXPOSE 8080
 
 # Command to run the application
-ENTRYPOINT ["java", "-jar", "/app.jar"]
+CMD ["java", "-jar", "build/libs/backend.jar"]
