@@ -3,10 +3,11 @@ import org.springframework.stereotype.Repository;
 import com.example.backend.entity.User;
 import com.example.backend.entity.Item;
 import org.springframework.data.jpa.repository.JpaRepository;
-import java.util.List;
+import java.util.*;
 
 
 @Repository
 public interface ItemRepository extends JpaRepository<Item, Long> {
     List<Item> findByUser(User user);
+    Optional<Item> findByItemName(String itemName);
 }

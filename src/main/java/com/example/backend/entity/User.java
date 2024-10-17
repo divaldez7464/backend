@@ -1,5 +1,6 @@
 package com.example.backend.entity;
 import jakarta.persistence.*;
+import java.util.List;
 
 @Entity
 @Table(name = "users")
@@ -11,6 +12,19 @@ public class User {
     private String username;
 
     private String password;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Item> items;
+
+    // Getters and setters
+
+    public List<Item> getItems() {
+        return items;
+    }
+
+    public void setItems(List<Item> items) {
+        this.items = items;
+    }
 
     public Long getId() {
         return id;
