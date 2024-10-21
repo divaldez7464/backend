@@ -7,14 +7,15 @@ import com.example.backend.repository.UserRepository;
 import com.example.backend.services.ItemService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.Optional;
 
 @RestController
-@RequestMapping("/api/items")
+@RequestMapping("/api")
 public class ItemController {
 
     private ItemRepository itemRepository;
@@ -29,18 +30,18 @@ public class ItemController {
 
 
     // Get all items for a logged-in user
-    @GetMapping
-    public ResponseEntity<List<Item>> getItems(@RequestParam Long userId) {
-        User user = userRepository.findById(userId).orElse(null);
-        if (user == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
-        List<Item> items = itemRepository.findByUser(user);
+    @GetMapping("/items/{userId}")
+    public ResponseEntity<List<Item>> getItemsByUserId(@PathVariable("userId") Long userId) {
+        // Fetch items associated with the userId
+        List<Item> items = itemRepository.findByUserId(userId);
+
+        // Return items or an empty list if the user has no items
         return ResponseEntity.ok(items);
     }
 
+
     // Add a new item
-    @PostMapping
+    @PostMapping("/items")
     public ResponseEntity<String> addItem(@RequestParam Long userId,
                                       @RequestParam String itemName,
                                       @RequestParam(required = false) String url,
@@ -72,7 +73,7 @@ public class ItemController {
                             .body("Item created successfully with ID: " + item.getId());
     }
 
-    @DeleteMapping
+    @DeleteMapping("/items")
     public ResponseEntity<String> removeItem(@RequestParam Long id) {
         // Retrieve item by ID using itemService
         return itemService.findById(id)
