@@ -1,4 +1,4 @@
-FROM openjdk:17-jdk-slim
+FROM openjdk:21-jdk-slim
 
 # Set the working directory in the container
 WORKDIR /app/backend
@@ -17,7 +17,7 @@ COPY src ./src
 RUN chmod +x gradlew
 
 # Build the project (excluding tests)
-RUN ./gradlew build -x test
+RUN ./gradlew build 
 
 # Expose the application port (adjust as needed, typically 8080 for Spring Boot)
 EXPOSE 8080
