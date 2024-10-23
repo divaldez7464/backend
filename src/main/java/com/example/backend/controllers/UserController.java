@@ -36,6 +36,7 @@ public class UserController {
         try {
             String username = userMap.get("username");
             String password = userMap.get("password");
+            
 
             User user = new User();
             user.setUsername(username);
