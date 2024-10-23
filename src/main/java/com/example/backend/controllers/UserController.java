@@ -3,6 +3,9 @@ package com.example.backend.controllers;
 import com.example.backend.entity.User;
 import com.example.backend.repository.UserRepository;
 import com.example.backend.services.UserService;
+
+import java.util.Map;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -11,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import jakarta.servlet.http.HttpSession;
 
 @RestController
+@CrossOrigin
 @RequestMapping("/api/users")
 public class UserController {
 
@@ -25,16 +29,27 @@ public class UserController {
     }
 
     // Create new user
+   
     @PostMapping("/newuser")
-    public ResponseEntity<User> createUser(@RequestParam String username, @RequestParam String password) {
-        User user = new User();
-        user.setUsername(username);
-        user.setPassword(passwordEncoder.encode(password));
-        User createdUser = userService.createUser(user);
-        return new ResponseEntity<>(createdUser, HttpStatus.CREATED);
+    @CrossOrigin()
+    public ResponseEntity<User> createUser(@RequestBody Map<String, String> userMap) {
+        try {
+            String username = userMap.get("username");
+            String password = userMap.get("password");
+
+            User user = new User();
+            user.setUsername(username);
+            user.setPassword(passwordEncoder.encode(password));
+            User createdUser = userService.createUser(user);
+            return new ResponseEntity<>(createdUser, HttpStatus.CREATED);
+        } catch (Exception e) {
+            e.printStackTrace(); // Log error
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     // Log in user
+    @CrossOrigin
     @PostMapping("/login")
     public ResponseEntity<String> login(@RequestParam String username, @RequestParam String password, HttpSession session) {
         if (userService.authenticate(username, password)) {
@@ -46,6 +61,7 @@ public class UserController {
     }
 
     // Log out user
+    @CrossOrigin
     @PostMapping("/logout")
     @GetMapping("/logout") // Allow both POST and GET requests
     public ResponseEntity<String> logout(@RequestParam String username, HttpSession session) {
@@ -53,7 +69,7 @@ public class UserController {
         session.invalidate();
         return ResponseEntity.ok(username + " logged out successfully!");
     }
-
+    @CrossOrigin
     @GetMapping("/isLoggedIn")
     public ResponseEntity<String> isLoggedIn(HttpSession session) {
         String loggedInUsername = (String) session.getAttribute("username");
@@ -64,7 +80,7 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("No user is currently logged in.");
         }
     }
-
+    @CrossOrigin
     @DeleteMapping("/logout")
     public ResponseEntity<String> deleteAccount(
             @RequestParam String username,
