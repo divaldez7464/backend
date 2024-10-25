@@ -52,7 +52,10 @@ public class UserController {
     // Log in user
     @CrossOrigin
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestParam String username, @RequestParam String password, HttpSession session) {
+    public ResponseEntity<String> login(@RequestBody Map<String, String> loginData, HttpSession session) {
+        String username = loginData.get("username");
+        String password = loginData.get("password");
+
         if (userService.authenticate(username, password)) {
             session.setAttribute("username", username);
             return new ResponseEntity<>("Login successful!", HttpStatus.OK);
@@ -117,6 +120,46 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
         return ResponseEntity.ok(user);
+    }
+
+    @SuppressWarnings("null")
+    @PutMapping("/update/{id}")
+    @CrossOrigin
+    public ResponseEntity<User> updateUser(@PathVariable Long id, @RequestBody Map<String, String> updates, HttpSession session) {
+        String loggedInUsername = (String) session.getAttribute("username");
+
+        // Check if user is logged in
+        if (loggedInUsername == null) {
+            return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
+        }
+
+        // Find the user by ID
+        User user = userRepository.findById(id).orElse(null);
+        if (user == null) {
+            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+        }
+
+        // Ensure the logged-in user is the owner of the account being updated
+        if (!user.getUsername().equals(loggedInUsername)) {
+            return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
+        }
+
+        // Update username (optional)
+        if (updates.containsKey("username")) {
+            String newUsername = updates.get("username");
+            user.setUsername(newUsername);
+        }
+
+        // Update password (optional)
+        if (updates.containsKey("password")) {
+            String newPassword = updates.get("password");
+            user.setPassword(passwordEncoder.encode(newPassword));
+        }
+
+        // Save updated user
+        User updatedUser = userRepository.save(user);
+
+        return new ResponseEntity<>(updatedUser, HttpStatus.OK);
     }
 
 }
