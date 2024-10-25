@@ -36,16 +36,20 @@ public class ItemController {
     @GetMapping("/items")
     public ResponseEntity<List<Item>> getItemsByUserId(HttpSession session) {
         String loggedInUsername = (String) session.getAttribute("username");
-        
+
         if (loggedInUsername == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
         }
-        
+
         Optional<User> user = userRepository.findByUsername(loggedInUsername);
-        List<Item> items = itemRepository.findByUser(user);
-        
-        return ResponseEntity.ok(items);
+        if (user.isPresent()) {
+            List<Item> items = itemRepository.findByUser(user.get());
+            return ResponseEntity.ok(items);
+        }
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
     }
+
 
     // Get item by id
     @GetMapping("/items/{id}")
