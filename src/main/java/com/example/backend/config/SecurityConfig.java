@@ -7,7 +7,6 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.config.http.SessionCreationPolicy;
 
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -22,11 +21,7 @@ public class SecurityConfig {
         http
             .csrf(csrf -> csrf.disable()) // Disable CSRF for simplicity (not recommended for production)
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/users/login", "/api/users/signup").permitAll() // Allow login and signup without authentication
-                .anyRequest().authenticated()) // All other requests require authentication
-            .sessionManagement(session -> session
-                .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)); // Specify session management policy
-
+                .anyRequest().permitAll()); // Permit all requests
         return http.build();
     }
 
@@ -40,8 +35,7 @@ public class SecurityConfig {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true);
-        config.addAllowedOrigin("https://project02-3bd6df9baeaf.herokuapp.com"); // Allow your deployed React app
-        config.addAllowedOrigin("http://localhost:3000"); // Allow your local React app
+        config.addAllowedOrigin("http://localhost:3000"); // Change to your React app's URL
         config.addAllowedHeader("*");
         config.addAllowedMethod("*");
         source.registerCorsConfiguration("/**", config);

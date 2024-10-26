@@ -50,19 +50,32 @@ public class UserController {
     }
 
     // Log in user
-    @CrossOrigin
-    @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody Map<String, String> loginData, HttpSession session) {
-        String username = loginData.get("username");
-        String password = loginData.get("password");
-
-        if (userService.authenticate(username, password)) {
-            session.setAttribute("username", username);
-            return new ResponseEntity<>("Login successful!", HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>("Invalid username or password.", HttpStatus.UNAUTHORIZED);
-        }
-    }
+ @CrossOrigin
+ @PostMapping("/login")
+ public ResponseEntity<Map<String, Object>> login(@RequestBody Map<String, String> loginData, HttpSession session) {
+     String username = loginData.get("username");
+     String password = loginData.get("password");
+ 
+     if (userService.authenticate(username, password)) {
+         session.setAttribute("username", username);
+         User user = userService.findByUsername(username);
+ 
+         // Prepare the JSON response
+         Map<String, Object> response = Map.of(
+             "message", "Login successful!",
+             "username", user.getUsername(),
+             "user_id", user.getId()
+         );
+ 
+         return ResponseEntity.ok(response);
+     } else {
+         // Return error message in JSON format
+         Map<String, Object> errorResponse = Map.of(
+             "message", "Invalid username or password."
+         );
+         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
+     }
+ }
 
     // Log out user
     @CrossOrigin
