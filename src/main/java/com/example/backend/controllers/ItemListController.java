@@ -12,6 +12,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/lists")
+@CrossOrigin
 public class ItemListController {
     private final ItemListService itemListService;
 

@@ -12,6 +12,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Enumeration;
+
+
+
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
@@ -19,6 +23,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api")
+@CrossOrigin
 public class ItemController {
 
     private ItemRepository itemRepository;
@@ -34,8 +39,19 @@ public class ItemController {
 
     // Get all items for a logged-in user
     @GetMapping("/items")
+    @CrossOrigin
     public ResponseEntity<List<Item>> getItemsByUserId(HttpSession session) {
+        
+        System.out.println("Session Attributes:");
+        Enumeration<String> attributeNames = session.getAttributeNames();
+        while (attributeNames.hasMoreElements()) {
+            String attributeName = attributeNames.nextElement();
+            Object attributeValue = session.getAttribute(attributeName);
+            System.out.println(attributeName + ": " + attributeValue);
+        }
+
         String loggedInUsername = (String) session.getAttribute("username");
+        System.out.println("Logged-in username: " + loggedInUsername);
 
         if (loggedInUsername == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
@@ -53,6 +69,7 @@ public class ItemController {
 
     // Get item by id
     @GetMapping("/items/{id}")
+    @CrossOrigin
     public ResponseEntity<Item> getItemById(@PathVariable Long id) {
         Item item = itemRepository.findById(id).orElse(null);
         if (item == null) {
@@ -63,6 +80,7 @@ public class ItemController {
 
     // Add a new item
     @PostMapping("/items")
+    @CrossOrigin
     public ResponseEntity<String> addItem(
             @RequestParam String item_name,
             @RequestParam(required = false) String url,
@@ -107,6 +125,7 @@ public class ItemController {
 
 
     // Remove item
+    @CrossOrigin
     @DeleteMapping("/items")
     public ResponseEntity<String> removeItem(@RequestParam("item_name") Long id) {
         // Retrieve item by ID using itemService
