@@ -50,7 +50,11 @@ public class ItemController {
             System.out.println(attributeName + ": " + attributeValue);
         }
 
+        //keep
         String loggedInUsername = (String) session.getAttribute("username");
+
+
+
         System.out.println("Logged-in username: " + loggedInUsername);
 
         if (loggedInUsername == null) {
@@ -119,8 +123,8 @@ public class ItemController {
         // Save the item to the database
         itemRepository.save(item);
 
-        return ResponseEntity.status(HttpStatus.CREATED)
-                            .body("Item created successfully with ID: " + item.getId());
+        
+        return ResponseEntity.status(HttpStatus.CREATED).body("{\"message\": \"Item created successfully with ID: " + item.getId() + "\"}");
     }
 
 
@@ -136,7 +140,7 @@ public class ItemController {
                 })
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body("Item not found."));
     }
-
+  
     // Update Item
     @PatchMapping("/items")
     public ResponseEntity<String> updateItem(@RequestParam("item_name") String itemName, @RequestBody Item updatedItem) {
@@ -161,6 +165,7 @@ public class ItemController {
                                             .body("Item not found with name: " + itemName));  // Return 404 if not found
     }
     // Find item by search
+    
     @GetMapping("/items/search")
     public ResponseEntity<List<Item>> searchItems(@RequestParam("search") String searchTerms) {
         String[] terms = searchTerms.split(",");
