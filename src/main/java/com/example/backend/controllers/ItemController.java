@@ -142,11 +142,10 @@ public class ItemController {
   
     // Update Item
     @PatchMapping("/items")
-    public ResponseEntity<String> updateItem(@RequestParam("item_name") String itemName, @RequestBody Item updatedItem) {
-        // Find the item by item name
-        return itemRepository.findByItemName(itemName)
+    public ResponseEntity<String> updateItem(@RequestParam("item_name") Long itemId, @RequestBody Item updatedItem) {
+        // Find the item by ID
+        return itemRepository.findById(itemId)
                 .map(existingItem -> {
-                    // Update the item's fields if they're provided in the request body
                     if (updatedItem.getUrl() != null) {
                         existingItem.setUrl(updatedItem.getUrl());
                     }
@@ -156,14 +155,15 @@ public class ItemController {
                     if (updatedItem.getPrice() != null) {
                         existingItem.setPrice(updatedItem.getPrice());
                     }
+
                     // Save the updated item
                     itemRepository.save(existingItem);
                     return ResponseEntity.ok("Item updated successfully.");
                 })
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND)
-                                            .body("Item not found with name: " + itemName));  // Return 404 if not found
+                        .body("Item not found with ID: " + itemId));
     }
-    
+
     // Find item by search
     @GetMapping("/items/search")
     public ResponseEntity<List<Item>> searchItems(@RequestParam("search") String searchTerms) {
