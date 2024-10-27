@@ -130,7 +130,7 @@ public class ItemController {
 
     // Remove item
     @CrossOrigin
-    @DeleteMapping
+    @DeleteMapping("/items")
     public ResponseEntity<String> removeItem(@RequestParam("item_name") Long id) {
         return itemService.findById(id)
                 .map(item -> {
@@ -141,11 +141,20 @@ public class ItemController {
     }
   
     // Update Item
-    @PatchMapping("/items")
-    public ResponseEntity<String> updateItem(@RequestParam("item_name") Long itemId, @RequestBody Item updatedItem) {
-        // Find the item by ID
-        return itemRepository.findById(itemId)
+    @PatchMapping("/items/{id}") // Ensure the correct URL mapping
+    public ResponseEntity<String> updateItem(@PathVariable Long id, @RequestBody Item updatedItem, HttpSession session) {
+        String loggedInUsername = (String) session.getAttribute("username");
+        
+        if (loggedInUsername == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not logged in");
+        }
+
+        return itemRepository.findById(id)
                 .map(existingItem -> {
+                    // Update fields if provided
+                    if (updatedItem.getItemName() != null) {
+                        existingItem.setItemName(updatedItem.getItemName());
+                    }
                     if (updatedItem.getUrl() != null) {
                         existingItem.setUrl(updatedItem.getUrl());
                     }
@@ -155,14 +164,14 @@ public class ItemController {
                     if (updatedItem.getPrice() != null) {
                         existingItem.setPrice(updatedItem.getPrice());
                     }
-
-                    // Save the updated item
                     itemRepository.save(existingItem);
                     return ResponseEntity.ok("Item updated successfully.");
                 })
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body("Item not found with ID: " + itemId));
-    }
+                                            .body("Item not found with ID: " + id));
+        }
+
+
 
     // Find item by search
     @GetMapping("/items/search")
