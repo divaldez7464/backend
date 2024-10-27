@@ -10,6 +10,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.transaction.annotation.Transactional;
+
 
 import jakarta.servlet.http.HttpSession;
 
@@ -66,8 +68,10 @@ public class UserController {
              "username", user.getUsername(),
              "user_id", user.getId()
          );
- 
+         
+     
          return ResponseEntity.ok(response);
+
      } else {
          // Return error message in JSON format
          Map<String, Object> errorResponse = Map.of(
@@ -99,6 +103,7 @@ public class UserController {
     }
     @CrossOrigin
     @DeleteMapping("/logout")
+    @Transactional
     public ResponseEntity<String> deleteAccount(
             @RequestParam String username,
             HttpSession session) {
