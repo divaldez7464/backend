@@ -130,9 +130,8 @@ public class ItemController {
 
     // Remove item
     @CrossOrigin
-    @DeleteMapping("/items")
+    @DeleteMapping
     public ResponseEntity<String> removeItem(@RequestParam("item_name") Long id) {
-        // Retrieve item by ID using itemService
         return itemService.findById(id)
                 .map(item -> {
                     itemService.deleteItem(item);
@@ -164,8 +163,8 @@ public class ItemController {
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND)
                                             .body("Item not found with name: " + itemName));  // Return 404 if not found
     }
-    // Find item by search
     
+    // Find item by search
     @GetMapping("/items/search")
     public ResponseEntity<List<Item>> searchItems(@RequestParam("search") String searchTerms) {
         String[] terms = searchTerms.split(",");
@@ -185,5 +184,7 @@ public class ItemController {
 
         return ResponseEntity.ok(foundItems);
     }
+
+
 
 }
