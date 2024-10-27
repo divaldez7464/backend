@@ -141,7 +141,7 @@ public class ItemController {
     }
   
     // Update Item
-    @PatchMapping("/items/{id}")
+    @PatchMapping("/{id}")
     public ResponseEntity<String> updateItem(@PathVariable Long id, @RequestBody Item updatedItem) {
         return itemRepository.findById(id)
                 .map(existingItem -> {
