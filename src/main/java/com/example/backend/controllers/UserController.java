@@ -175,4 +175,21 @@ public class UserController {
         return new ResponseEntity<>(updatedUser, HttpStatus.OK);
     }
 
+    @CrossOrigin
+    @GetMapping("/currentuser")
+    public ResponseEntity<User> getCurrentUser(HttpSession session) {
+        String loggedInUsername = (String) session.getAttribute("username");
+
+        if (loggedInUsername == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        User user = userService.findByUsername(loggedInUsername);
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+
+        return ResponseEntity.ok(user);
+    }
+
 }

@@ -169,7 +169,7 @@ public class ItemController {
                 })
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND)
                                             .body("Item not found with ID: " + id));
-        }
+    }
 
 
 
