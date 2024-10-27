@@ -130,7 +130,7 @@ public class ItemController {
 
     // Remove item
     @CrossOrigin
-    @DeleteMapping
+    @DeleteMapping("/items")
     public ResponseEntity<String> removeItem(@RequestParam("item_name") Long id) {
         return itemService.findById(id)
                 .map(item -> {
@@ -141,8 +141,14 @@ public class ItemController {
     }
   
     // Update Item
-    @PatchMapping("/{id}")
-    public ResponseEntity<String> updateItem(@PathVariable Long id, @RequestBody Item updatedItem) {
+    @PatchMapping("/items/{id}") // Ensure the correct URL mapping
+    public ResponseEntity<String> updateItem(@PathVariable Long id, @RequestBody Item updatedItem, HttpSession session) {
+        String loggedInUsername = (String) session.getAttribute("username");
+        
+        if (loggedInUsername == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not logged in");
+        }
+
         return itemRepository.findById(id)
                 .map(existingItem -> {
                     // Update fields if provided
@@ -163,7 +169,8 @@ public class ItemController {
                 })
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND)
                                             .body("Item not found with ID: " + id));
-    }
+        }
+
 
 
     // Find item by search
